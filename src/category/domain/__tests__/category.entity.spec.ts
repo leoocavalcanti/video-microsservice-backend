@@ -1,3 +1,4 @@
+import { Uuid } from "../../../shared/value-objects/uuid.vo";
 import { Category } from "../category.entity";
 
 describe("Category Unit Tests", () => {
@@ -7,7 +8,7 @@ describe("Category Unit Tests", () => {
         name: "Movie",
       });
 
-      expect(category.category_id).toBeUndefined();
+      expect(category.category_id).toBeInstanceOf(Uuid)
       expect(category.name).toBe("Movie");
       expect(category.description).toBeNull();
       expect(category.is_active).toBeTruthy();
@@ -23,7 +24,7 @@ describe("Category Unit Tests", () => {
         created_at,
       });
 
-      expect(category.category_id).toBeUndefined();
+      expect(category.category_id).toBeInstanceOf(Uuid)
       expect(category.name).toBe("Movie");
       expect(category.description).toBe("Movie category");
       expect(category.is_active).toBeFalsy();
@@ -36,7 +37,7 @@ describe("Category Unit Tests", () => {
         description: "Movie category",
       });
 
-      expect(category.category_id).toBeUndefined();
+     expect(category.category_id).toBeInstanceOf(Uuid)
       expect(category.name).toBe("Movie");
       expect(category.description).toBe("Movie category");
       expect(category.is_active).toBeTruthy();
@@ -51,7 +52,7 @@ describe("Category Unit Tests", () => {
         is_active: false,
       });
 
-      expect(category.category_id).toBeUndefined();
+      expect(category.category_id).toBeInstanceOf(Uuid)
       expect(category.name).toBe("Movie");
       expect(category.description).toBe("Movie category");
       expect(category.is_active).toBeFalsy();
@@ -71,7 +72,7 @@ describe("Category Unit Tests", () => {
         is_active: true,
       });
 
-      expect(updatedCategory.category_id).toBeUndefined();
+      expect(category.category_id).toBeInstanceOf(Uuid)
       expect(updatedCategory.name).toBe("Film");
       expect(updatedCategory.description).toBe("Film category");
       expect(updatedCategory.is_active).toBeTruthy();
@@ -128,4 +129,18 @@ describe("Category Unit Tests", () => {
       expect(category.is_active).toBeFalsy();
     });
   });
+
+  describe("category_id field", () => {
+    const arrange = [{category_id: null}, {category_id: undefined}, {category_id: new Uuid()}];
+    it.each(arrange)("id = %j", ({category_id}) => {
+      const category = new Category({
+        name: "Movie",
+        category_id: category_id as any,
+      });
+      
+      if(category_id instanceof Uuid) {
+        expect(category.category_id).toBeInstanceOf(Uuid)
+      }
+    });
+  })
 });
