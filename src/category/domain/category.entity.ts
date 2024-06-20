@@ -1,5 +1,5 @@
 import { Uuid } from "../../shared/value-objects/uuid.vo";
-import { ValidatorRules } from "./validators/validator-rules";
+import { CategoryValidatorFactory } from "./category.validator";
 
 export type CategoryConstructorProps = {
   category_id?: Uuid;
@@ -9,10 +9,11 @@ export type CategoryConstructorProps = {
   created_at?: Date;
 };
 
-export type CategoryCreateCommand = Pick<
-  CategoryConstructorProps,
-  "name" | "description" | "is_active"
->;
+export type CategoryCreateCommand = {
+  name: string;
+  description?: string | null;
+  is_active?: boolean;
+};
 
 export class Category {
   category_id: Uuid;
@@ -29,24 +30,20 @@ export class Category {
     this.created_at = props.created_at ?? new Date();
   }
 
-  static create(props: CategoryCreateCommand): Category {
-    return new Category(props);
-  }
-
-  update(props: Partial<CategoryConstructorProps>): Category {
-    return new Category({
-      ...this,
-      ...props,
-    });
+  static create(props: CategoryConstructorProps): Category {
+    const category = new Category(props);
+    Category.validate(category);
+    return category;
   }
 
   changeName(name: string): void {
-    ValidatorRules.values(name, 'name').required().string().maxLength(255)
     this.name = name;
+    Category.validate(this);
   }
 
   changeDescription(description: string): void {
     this.description = description;
+    Category.validate(this);
   }
 
   activate() {
@@ -55,6 +52,11 @@ export class Category {
 
   deactivate() {
     this.is_active = false;
+  }
+
+  static validate(entity: Category) {
+    const validator = CategoryValidatorFactory.create();
+    return validator.validate(entity);
   }
 
   toJSON() {
